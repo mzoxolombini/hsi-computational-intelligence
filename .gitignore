@@ -1,0 +1,43 @@
+# Byte-compiled / optimised files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyCharm / JetBrains IDEs
+.idea/
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env
+
+# Dataset files (large binary files — download separately)
+data/raw/*.mat
+
+# Experiment output
+results/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Test & coverage artefacts
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# Log files
+*.log
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db

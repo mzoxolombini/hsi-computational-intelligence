@@ -14,7 +14,17 @@ class HolisticallyNestedEdgeDetection(nn.Module):
         super(HolisticallyNestedEdgeDetection, self).__init__()
         
         # Load VGG16 as backbone
-        vgg16 = models.vgg16(pretrained=pretrained)
+        if pretrained:
+            try:
+                vgg16 = models.vgg16(weights=models.VGG16_Weights.DEFAULT)
+            except AttributeError:
+                # Fallback for torch < 1.13
+                vgg16 = models.vgg16(pretrained=True)  # noqa: TOR101
+        else:
+            try:
+                vgg16 = models.vgg16(weights=None)
+            except TypeError:
+                vgg16 = models.vgg16(pretrained=False)  # noqa: TOR101
         
         # Extract feature layers
         self.conv1_1 = vgg16.features[0:2]   # Conv + ReLU
