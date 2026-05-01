@@ -110,25 +110,139 @@ class IterativeLocalSearch:
     
     def _evaluate(self, config: Dict, validation_data, scorer) -> float:
         """Evaluate configuration using scoring function"""
+        if validation_data is None:
+            return scorer(config, None, None)
+
         # Extract classical features based on config
         classical_features = self._extract_classical_features(validation_data, config)
-        
+
         # Get HED predictions
         hed_outputs = self._get_hed_predictions(validation_data)
-        
+
+        if classical_features is None or hed_outputs is None:
+            return scorer(config, None, None)
+
         # Compute fused score
-        score = scorer(classical_features, hed_outputs, validation_data.labels)
-        
+        score = scorer(config, classical_features, hed_outputs)
+
         return score
-    
+
     def _extract_classical_features(self, data, config):
         """Extract classical edge features based on configuration"""
-        # Implementation of Canny, Sobel, Laplacian, Gabor extraction
-        pass
-    
+        import cv2
+
+        if data is None:
+            return {}
+
+        detector_configs = ClassicalDetectorConfig()
+
+        # Normalise data to uint8 grayscale for OpenCV
+        if isinstance(data, np.ndarray):
+            if data.ndim == 3:
+                # Multi-band: use mean across bands
+                gray = data.mean(axis=-1)
+            else:
+                gray = data.copy()
+            gray = gray.astype(np.float32)
+            g_min, g_max = gray.min(), gray.max()
+            if g_max > g_min:
+                gray = ((gray - g_min) / (g_max - g_min) * 255).astype(np.uint8)
+            else:
+                gray = np.zeros_like(gray, dtype=np.uint8)
+        else:
+            return {}
+
+        features = {}
+
+        # --- Canny ---
+        canny_configs = detector_configs.canny_configs
+        if canny_configs:
+            canny_idx = int(config.get('canny', 0)) % len(canny_configs)
+            (low_thresh, high_thresh), aperture = canny_configs[canny_idx]
+            features['canny'] = cv2.Canny(gray, low_thresh, high_thresh, apertureSize=aperture)
+
+        # --- Sobel ---
+        sobel_kernels = detector_configs.sobel_kernels
+        if sobel_kernels:
+            sobel_idx = int(config.get('sobel', 0)) % len(sobel_kernels)
+            ksize = sobel_kernels[sobel_idx]
+            sobel_x = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=ksize)
+            sobel_y = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=ksize)
+            features['sobel'] = np.sqrt(sobel_x ** 2 + sobel_y ** 2)
+
+        # --- Laplacian ---
+        laplacian_kernels = detector_configs.laplacian_kernels
+        if laplacian_kernels:
+            lap_idx = int(config.get('laplacian', 0)) % len(laplacian_kernels)
+            lap_ksize = laplacian_kernels[lap_idx]
+            features['laplacian'] = cv2.Laplacian(gray, cv2.CV_64F, ksize=lap_ksize)
+
+        # --- Gabor filter bank ---
+        gabor_configs = detector_configs.gabor_configs
+        if gabor_configs:
+            gabor_idx = int(config.get('gabor', 0)) % len(gabor_configs)
+            n_orientations, wavelength, bandwidth = gabor_configs[gabor_idx]
+            gabor_responses = []
+            for angle_idx in range(n_orientations):
+                theta = np.pi * angle_idx / n_orientations
+                sigma = wavelength / np.pi * np.sqrt(np.log(2) / 2) * (2 ** bandwidth + 1) / (2 ** bandwidth - 1)
+                kernel = cv2.getGaborKernel(
+                    (21, 21),
+                    sigma,
+                    theta,
+                    wavelength,
+                    bandwidth,
+                    0,
+                    ktype=cv2.CV_32F,
+                )
+                response = cv2.filter2D(gray.astype(np.float32), cv2.CV_32F, kernel)
+                gabor_responses.append(response)
+            features['gabor'] = np.stack(gabor_responses, axis=-1)
+
+        return features
+
     def _get_hed_predictions(self, data):
         """Get HED predictions (frozen model)"""
-        pass
+        import torch
+
+        if data is None:
+            return None
+
+        if not isinstance(data, np.ndarray):
+            return None
+
+        from src.models.hed import HolisticallyNestedEdgeDetection
+
+        # Initialise a frozen HED model (lazy, no pretrained weights required at test time)
+        hed_model = HolisticallyNestedEdgeDetection(pretrained=False)
+        hed_model.eval()
+        for param in hed_model.parameters():
+            param.requires_grad_(False)
+
+        # Prepare a 3-channel float tensor (H, W, 3) → (1, 3, H, W)
+        if data.ndim == 2:
+            img = np.stack([data] * 3, axis=-1)
+        elif data.ndim == 3 and data.shape[2] >= 3:
+            img = data[:, :, :3]
+        elif data.ndim == 3:
+            img = np.concatenate(
+                [data] + [data[:, :, -1:]] * (3 - data.shape[2]), axis=-1
+            )
+        else:
+            return None
+
+        img = img.astype(np.float32)
+        i_min, i_max = img.min(), img.max()
+        if i_max > i_min:
+            img = (img - i_min) / (i_max - i_min)
+
+        tensor = torch.from_numpy(img).permute(2, 0, 1).unsqueeze(0)
+
+        with torch.no_grad():
+            side_outputs = hed_model(tensor)
+            fused = torch.sigmoid(side_outputs[-1]).squeeze().cpu().numpy()
+
+        return fused
 
 class WeightedBinaryCrossEntropyLoss(nn.Module):
     """
