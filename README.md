@@ -75,13 +75,7 @@ Place the downloaded `.mat` files in `data/raw/`.
 
 ## Usage
 
-### Run all experiments directly
-
-```bash
-python main_experiment.py
-```
-
-### Run via CLI (`main.py`)
+### Run experiments via CLI (`main.py`)
 
 ```bash
 # Show help
