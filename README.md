@@ -151,5 +151,5 @@ All enhancements are statistically significant at p < 0.01 (paired t-test, n = 1
 
 ## Citation / Author
 
-> *[Author placeholder — replace with your full citation once the thesis is published]*  
+> *[Mzoxolo Mbini — replace with your full citation once the thesis is published]*  
 > Thesis: "Optimisation of Computational Intelligence Techniques for Hyperspectral Image Segmentation"
