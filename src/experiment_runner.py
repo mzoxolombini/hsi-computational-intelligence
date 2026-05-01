@@ -1,4 +1,4 @@
-# main_experiment.py
+# experiment_runner.py
 """
 Main experiment runner for the thesis
 "

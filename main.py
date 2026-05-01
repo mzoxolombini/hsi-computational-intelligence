@@ -10,7 +10,7 @@ Usage examples:
 import argparse
 import sys
 
-from main_experiment import ExperimentRunner
+from src.experiment_runner import ExperimentRunner
 
 DATASETS = ['indian_pines', 'pavia_university', 'salinas_valley', 'houston', 'botswana', 'all']
 EXPERIMENTS = ['deep_learning', 'watershed', 'thresholding', 'all']
