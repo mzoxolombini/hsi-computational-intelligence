@@ -33,7 +33,7 @@ class WatershedGA:
             'sigma': (0.1, 5.0),     # Gaussian smoothing sigma
             'tau_grad': (0.01, 0.99), # Gradient threshold
             's_min': (1, 500),       # Minimum region size
-            'classifier': (0, 2)     # 0: RF, 1: SVM, 2: k-NN
+            'classifier': (0, 3)     # 0: RF, 1: SVM, 2: k-NN
         }
     
     def encode_chromosome(self, params):

@@ -55,3 +55,12 @@ def test_optimize_runs_without_error(dega):
     optimal_thresholds, best_fitness = dega.optimize(histogram, verbose=False)
     assert optimal_thresholds.shape == (NUM_THRESHOLDS,)
     assert best_fitness >= 0.0
+
+
+def test_optimize_returns_threshold_values(dega):
+    histogram = np.arange(1, 257, dtype=np.float32)
+    optimal_thresholds, best_fitness = dega.optimize(histogram, verbose=False)
+    assert np.issubdtype(optimal_thresholds.dtype, np.number)
+    assert np.all(np.diff(np.sort(optimal_thresholds)) >= 0)
+    assert np.all((optimal_thresholds >= 0) & (optimal_thresholds <= 255))
+    assert np.isfinite(best_fitness)

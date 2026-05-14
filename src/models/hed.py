@@ -27,19 +27,16 @@ class HolisticallyNestedEdgeDetection(nn.Module):
                 vgg16 = models.vgg16(pretrained=False)  # noqa: TOR101
         
         # Extract feature layers
-        self.conv1_1 = vgg16.features[0:2]   # Conv + ReLU
-        self.conv1_2 = vgg16.features[2:5]   # Conv + ReLU + MaxPool
-        self.conv2_1 = vgg16.features[5:7]
-        self.conv2_2 = vgg16.features[7:10]
-        self.conv3_1 = vgg16.features[10:12]
-        self.conv3_2 = vgg16.features[12:14]
-        self.conv3_3 = vgg16.features[14:17]
-        self.conv4_1 = vgg16.features[17:19]
-        self.conv4_2 = vgg16.features[19:21]
-        self.conv4_3 = vgg16.features[21:24]
-        self.conv5_1 = vgg16.features[24:26]
-        self.conv5_2 = vgg16.features[26:28]
-        self.conv5_3 = vgg16.features[28:31]
+        self.block1 = vgg16.features[0:4]    # 2×(Conv+ReLU), output 64ch
+        self.pool1 = vgg16.features[4]       # MaxPool
+        self.block2 = vgg16.features[5:9]    # 2×(Conv+ReLU), output 128ch
+        self.pool2 = vgg16.features[9]
+        self.block3 = vgg16.features[10:16]  # 3×(Conv+ReLU), output 256ch
+        self.pool3 = vgg16.features[16]
+        self.block4 = vgg16.features[17:23]  # 3×(Conv+ReLU), output 512ch
+        self.pool4 = vgg16.features[23]
+        self.block5 = vgg16.features[24:30]  # 3×(Conv+ReLU), output 512ch
+        self.pool5 = vgg16.features[30]
         
         # Side output layers
         self.side1 = nn.Conv2d(64, 1, kernel_size=1)
@@ -62,31 +59,27 @@ class HolisticallyNestedEdgeDetection(nn.Module):
     
     def forward(self, x):
         # Forward pass through VGG layers
-        h = self.conv1_1(x)
-        h = self.conv1_2(h)
+        h = self.block1(x)
         side1 = self.side1(h)
         side1 = F.interpolate(side1, size=x.shape[2:], mode='bilinear', align_corners=False)
         
-        h = self.conv2_1(h)
-        h = self.conv2_2(h)
+        h = self.pool1(h)
+        h = self.block2(h)
         side2 = self.side2(h)
         side2 = F.interpolate(side2, size=x.shape[2:], mode='bilinear', align_corners=False)
         
-        h = self.conv3_1(h)
-        h = self.conv3_2(h)
-        h = self.conv3_3(h)
+        h = self.pool2(h)
+        h = self.block3(h)
         side3 = self.side3(h)
         side3 = F.interpolate(side3, size=x.shape[2:], mode='bilinear', align_corners=False)
         
-        h = self.conv4_1(h)
-        h = self.conv4_2(h)
-        h = self.conv4_3(h)
+        h = self.pool3(h)
+        h = self.block4(h)
         side4 = self.side4(h)
         side4 = F.interpolate(side4, size=x.shape[2:], mode='bilinear', align_corners=False)
         
-        h = self.conv5_1(h)
-        h = self.conv5_2(h)
-        h = self.conv5_3(h)
+        h = self.pool4(h)
+        h = self.block5(h)
         side5 = self.side5(h)
         side5 = F.interpolate(side5, size=x.shape[2:], mode='bilinear', align_corners=False)
         
