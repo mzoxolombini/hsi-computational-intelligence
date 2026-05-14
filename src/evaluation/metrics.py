@@ -102,7 +102,10 @@ class PairedTTest:
         std_diff = np.std(differences, ddof=1)
         n = len(differences)
         
-        t_statistic = mean_diff / (std_diff / np.sqrt(n))
+        if std_diff == 0:
+            t_statistic = 0.0 if mean_diff == 0 else np.inf
+        else:
+            t_statistic = mean_diff / (std_diff / np.sqrt(n))
         
         critical_t = PairedTTest.critical_value(alpha, df=n-1)
         significant = t_statistic > critical_t

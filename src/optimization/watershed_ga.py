@@ -33,7 +33,7 @@ class WatershedGA:
             'sigma': (0.1, 5.0),     # Gaussian smoothing sigma
             'tau_grad': (0.01, 0.99), # Gradient threshold
             's_min': (1, 500),       # Minimum region size
-            'classifier': (0, 2)     # 0: RF, 1: SVM, 2: k-NN
+            'classifier': (0, 3)     # 0: RF, 1: SVM, 2: k-NN (upper bound exclusive)
         }
     
     def encode_chromosome(self, params):
@@ -48,12 +48,13 @@ class WatershedGA:
     
     def decode_chromosome(self, chromosome):
         """Decode chromosome to parameter dictionary"""
+        classifier_min, classifier_max_exclusive = self.bounds['classifier']
         return {
             'n_pca': int(np.clip(chromosome[0], self.bounds['n_pca'][0], self.bounds['n_pca'][1])),
             'sigma': np.clip(chromosome[1], self.bounds['sigma'][0], self.bounds['sigma'][1]),
             'tau_grad': np.clip(chromosome[2], self.bounds['tau_grad'][0], self.bounds['tau_grad'][1]),
             's_min': int(np.clip(chromosome[3], self.bounds['s_min'][0], self.bounds['s_min'][1])),
-            'classifier': int(np.clip(chromosome[4], self.bounds['classifier'][0], self.bounds['classifier'][1]))
+            'classifier': int(np.clip(chromosome[4], classifier_min, classifier_max_exclusive - 1))
         }
     
     def fitness(self, chromosome, data, labels):
