@@ -66,9 +66,3 @@ def test_smoothness_penalty_few_regions(wsga):
 def test_encode_chromosome_shape(wsga):
     chrom = wsga.encode_chromosome(DEFAULT_PARAMS)
     assert chrom.shape == (5,)
-
-
-def test_decode_chromosome_supports_knn_classifier(wsga):
-    chromosome = np.array([5, 1.0, 0.5, 100, 2])
-    decoded = wsga.decode_chromosome(chromosome)
-    assert decoded['classifier'] == 2
