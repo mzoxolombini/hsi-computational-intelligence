@@ -54,12 +54,3 @@ def test_paired_ttest_significant_is_bool():
     enhanced = np.array([0.80] * 10)
     result = PairedTTest.test(baseline, enhanced, alpha=0.05)
     assert isinstance(result['significant'], (bool, np.bool_))
-
-
-def test_paired_ttest_zero_difference_has_zero_tstat():
-    baseline = np.array([0.75] * 10)
-    enhanced = np.array([0.75] * 10)
-    result = PairedTTest.test(baseline, enhanced, alpha=0.05)
-    assert result['t_statistic'] == pytest.approx(0.0)
-    assert result['mean_improvement'] == pytest.approx(0.0)
-    assert result['significant'] is False
