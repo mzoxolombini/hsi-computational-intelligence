@@ -21,7 +21,7 @@ class ClassicalDetectorConfig:
         self.laplacian_kernels = [3, 5, 7, 9]
         
         # Gabor configurations: 36 variants
-        self.gabor_orientations = [4, 8, 12, 16]
+        self.gabor_orientations = [4, 8, 12]
         self.gabor_wavelengths = [4, 8, 16]
         self.gabor_bandwidths = [0.5, 1.0, 2.0]
         self.gabor_configs = list(product(self.gabor_orientations, 
@@ -29,28 +29,10 @@ class ClassicalDetectorConfig:
                                          self.gabor_bandwidths))
     
     def get_total_configs(self) -> int:
-        return (len(self.canny_configs) +
-                len(self.sobel_kernels) +
-                len(self.laplacian_kernels) +
+        return (len(self.canny_configs) * 
+                len(self.sobel_kernels) * 
+                len(self.laplacian_kernels) * 
                 len(self.gabor_configs))
-
-    def enumerate_all_configs(self) -> List[Dict[str, int]]:
-        """Enumerate all 53 single-detector configurations"""
-        all_configs = []
-
-        for idx in range(len(self.canny_configs)):
-            all_configs.append({'canny': idx, 'sobel': 0, 'laplacian': 0, 'gabor': 0})
-
-        for idx in range(len(self.sobel_kernels)):
-            all_configs.append({'canny': 0, 'sobel': idx, 'laplacian': 0, 'gabor': 0})
-
-        for idx in range(len(self.laplacian_kernels)):
-            all_configs.append({'canny': 0, 'sobel': 0, 'laplacian': idx, 'gabor': 0})
-
-        for idx in range(len(self.gabor_configs)):
-            all_configs.append({'canny': 0, 'sobel': 0, 'laplacian': 0, 'gabor': idx})
-
-        return all_configs
 
 class IterativeLocalSearch:
     """
@@ -71,21 +53,9 @@ class IterativeLocalSearch:
             scorer: Scoring function (negative weighted BCE)
             initial_config: Starting configuration
         """
-        detector_configs = ClassicalDetectorConfig()
-        all_configs = detector_configs.enumerate_all_configs()
-
-        if initial_config is not None:
-            all_configs.insert(0, initial_config)
-
-        best_config = all_configs[0]
+        best_config = initial_config or self._random_config()
         best_score = self._evaluate(best_config, validation_data, scorer)
-
-        for config in all_configs[1:]:
-            score = self._evaluate(config, validation_data, scorer)
-            if score > best_score:
-                best_config = config
-                best_score = score
-
+        
         no_improve = 0
         
         for iteration in range(self.max_iterations):
