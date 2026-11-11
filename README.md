@@ -1,6 +1,6 @@
 # HSI Computational Intelligence
 
-**Optimisation of Computational Intelligence Techniques for Hyperspectral Image Segmentation**
+**Automated Design of Hyperspectral Image Segmentation Techmiques**
 
 This repository contains the Python implementation accompanying the thesis. Three complementary
 enhancement frameworks are evaluated against five standard benchmark datasets.
