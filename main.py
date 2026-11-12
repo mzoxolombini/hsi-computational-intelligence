@@ -123,7 +123,7 @@ def main(argv=None):
     print("\n" + "="*60)
     print("SUMMARY OF RESULTS (OA%)")
     print("="*60)
-    print(f"{'Dataset':<20} {'Baseline HED':<12} {'ILS-HED':<12} {'Baseline WS':<12} {'WS-GA':<12} {'Baseline BT':<12} {'DE-GA':<12}")
+    print(f"{'Dataset':<20} {'Baseline HED':<12} {'ILS-HED':<12} {'Baseline WS':<12} {'WS-GA':<12} {'Baseline GA':<12} {'DE-GA':<12}")
     print("-"*60)
 
     for dataset in ['indian_pines', 'pavia_university', 'salinas_valley', 'houston', 'botswana']:
@@ -154,11 +154,10 @@ def main(argv=None):
               f"{th_baseline:<12.1f} {th_enhanced:<12.1f}")
 
     print("="*60)
-    print("\nBased on thesis results (Chapter 8):")
-    print("- All enhanced methods outperform baselines (p < 0.01)")
-    print("- WS-GA achieves highest accuracy on all datasets")
-    print("- DE-GA offers best speed-accuracy trade-off")
-    print("- ILS-HED enables model enhancement without retraining")
+    print("\nBased on thesis results (Chapter 10):")
+    print("- WS-GA and ILS-HED significantly outperform their baselines (p < 0.01)")
+    print("- ILSGA reproduces Baseline GA quality at lower cost (no significant difference, p > 0.05)")
+    print("- DEGA underperforms Baseline GA (p < 0.001); Baseline GA is the best thresholding result")
 
 
 if __name__ == '__main__':

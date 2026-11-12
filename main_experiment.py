@@ -186,7 +186,7 @@ class ExperimentRunner:
         # Run GA optimization (simplified for demonstration)
         # In practice, this would run for 100 generations
         
-        # Based on thesis results (Table 8.3)
+        # Based on thesis results (Table 10.2)
         ws_gains = {
             'indian_pines': 0.159,      # +15.9% OA
             'pavia_university': 0.155,  # +15.5% OA
@@ -245,7 +245,7 @@ class ExperimentRunner:
         
         baseline_metrics = metrics.compute_all(test_labels, test_pred)
         
-        print(f"Baseline BT - OA: {baseline_metrics['overall_accuracy']:.4f}")
+        print(f"Baseline GA - OA: {baseline_metrics['overall_accuracy']:.4f}")
         
         # Run DE-GA optimization
         de_ga = DEGAHybrid(num_thresholds=num_classes-1, 
@@ -255,7 +255,7 @@ class ExperimentRunner:
         # In practice, optimize thresholds
         # optimal_thresholds, best_fitness = de_ga.optimize(histogram, verbose=False)
         
-        # Based on thesis results (Table 8.4)
+        # Based on thesis results (Table 10.1)
         thresh_gains = {
             'indian_pines': 0.155,      # +15.5% OA
             'pavia_university': 0.153,  # +15.3% OA
@@ -289,7 +289,7 @@ class ExperimentRunner:
     def _edge_to_segmentation(self, edge_map, data, labels, train_mask):
         """
         Convert edge map to segmentation labels
-        Following Section 5.7.1 pipeline:
+        Following Section 6.4 pipeline:
         1. Binary thresholding at 0.5
         2. Connected component labeling
         3. Spectral classification using SVM

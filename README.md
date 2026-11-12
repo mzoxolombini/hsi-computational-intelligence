@@ -131,15 +131,19 @@ Fitness is Otsu's between-class variance.
 
 ## Expected Results (Overall Accuracy)
 
-| Dataset | Baseline HED | ILS-HED | Baseline WS | WS-GA | Baseline BT | DE-GA |
-|---|---|---|---|---|---|---|
-| Indian Pines | ~64 % | ~70.5 % | ~55 % | ~70.9 % | ~52 % | ~67.5 % |
-| Pavia University | ~68 % | ~73.5 % | ~57 % | ~72.5 % | ~54 % | ~69.3 % |
-| Salinas Valley | ~70 % | ~74.7 % | ~61 % | ~71.7 % | ~58 % | ~71.3 % |
-| Houston | ~66 % | ~72.2 % | ~53 % | ~70.2 % | ~50 % | ~66.3 % |
-| Botswana | ~67 % | ~72.8 % | ~56 % | ~72.6 % | ~53 % | ~68.8 % |
+Values are from thesis Chapter 10 (Tables 10.1, 10.2, 10.5), mean over 10 runs, 70 %/30 % stratified split.
 
-All enhancements are statistically significant at p < 0.01 (paired t-test, n = 10).
+| Dataset | Baseline HED | ILS-HED | Baseline WS | WS-GA | Baseline GA | DE-GA |
+|---|---|---|---|---|---|---|
+| Indian Pines | 72.4 % | 78.9 % | 75.3 % | 91.2 % | 74.1 % | 70.6 % |
+| Pavia University | 81.2 % | 86.7 % | 81.0 % | 96.5 % | 79.8 % | 76.2 % |
+| Salinas Valley | 85.6 % | 90.3 % | 88.2 % | 98.9 % | 86.2 % | 82.5 % |
+| Houston | 68.9 % | 75.1 % | 71.5 % | 88.7 % | 70.9 % | 67.4 % |
+| Botswana | 70.1 % | 76.4 % | 73.8 % | 90.4 % | 72.3 % | 69.0 % |
+
+**Statistical findings (Chapter 10):**
+- WS-GA and ILS-HED improvements over their respective baselines are statistically significant (p < 0.01, paired t-test, n = 10).
+- For thresholding, ILSGA reproduces Baseline GA quality at lower computational cost (p > 0.05; no significant difference). DE-GA underperforms Baseline GA on all datasets (p < 0.001 in the direction of worse performance). The best-available thresholding result is therefore Baseline GA itself.
 
 ---
 
